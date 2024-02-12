@@ -1,6 +1,55 @@
 <?php
 
 
+/**
+	COMMENT
+	Modified the getters and setter functions for HR, SR, GR to include escape for NULL data type.
+	
+	Here is example of change:
+	
+	From original
+	public function getMinHr(): int
+    {
+		return $this->min_hr;
+    }
+	
+	To this
+    public function getMinHr(): int
+    {
+		if (is_null($this->min_hr)) {
+			return 65535;
+		}
+		else {
+			return $this->min_hr;
+		}
+    }
+	
+	And for setter
+	
+	From original:
+	public function setMinHr($min_hr): Distribution
+    {
+		$this->min_hr = $min_hr;      
+        return $this;
+    }
+	
+	To this
+    public function setMinHr($min_hr): Distribution
+    {
+		if($min_hr == 65535) {
+			$this->min_hr = null;
+		}
+		else {
+			$this->min_hr = $min_hr;
+		}        
+        return $this;
+    }
+	
+	These fixes are dirty, it will pass 0 as an int in getter when value is null in table so these values will be displayed as that in editor.
+	For setter it will check if 65535 int was used (no limit) and change it to null before inserting into table.
+	*/
+
+
 namespace MHFSaveManager\Model;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -92,7 +141,7 @@ class Distribution
     protected $max_gr;
     
     /**
-     * @ORM\Column(type="blob")
+     * @ORM\Column(type="integer")
      * @var resource
      */
     protected $data;
@@ -281,7 +330,12 @@ class Distribution
      */
     public function getMinHr(): int
     {
-        return $this->min_hr;
+		if (is_null($this->min_hr)) {
+			return 65535;
+		}
+		else {
+			return $this->min_hr;
+		}
     }
     
     /**
@@ -290,8 +344,12 @@ class Distribution
      */
     public function setMinHr($min_hr): Distribution
     {
-        $this->min_hr = $min_hr;
-        
+		if($min_hr == 65535) {
+			$this->min_hr = null;
+		}
+		else {
+			$this->min_hr = $min_hr;
+		}        
         return $this;
     }
     
@@ -300,7 +358,12 @@ class Distribution
      */
     public function getMaxHr(): int
     {
-        return $this->max_hr;
+		if (is_null($this->max_hr)) {
+			return 65535;
+		}
+		else {
+			return $this->max_hr;
+		}
     }
     
     /**
@@ -309,8 +372,12 @@ class Distribution
      */
     public function setMaxHr($max_hr): Distribution
     {
-        $this->max_hr = $max_hr;
-        
+		if($max_hr == 65535) {
+			$this->max_hr = null;
+		}
+		else {
+			$this->max_hr = $max_hr;
+		}
         return $this;
     }
     
@@ -319,7 +386,12 @@ class Distribution
      */
     public function getMinSr(): int
     {
-        return $this->min_sr;
+		if (is_null($this->min_sr)) {
+			return 65535;
+		}
+		else {
+			return $this->min_sr;
+		}
     }
     
     /**
@@ -328,7 +400,12 @@ class Distribution
      */
     public function setMinSr($min_sr): Distribution
     {
-        $this->min_sr = $min_sr;
+		if($min_sr == 65535) {
+			$this->min_sr = null;
+		}
+		else {
+			$this->min_sr = $min_sr;
+		}        
         
         return $this;
     }
@@ -338,7 +415,12 @@ class Distribution
      */
     public function getMaxSr(): int
     {
-        return $this->max_sr;
+		if (is_null($this->max_sr)) {
+			return 65535;
+		}
+		else {
+			return $this->max_sr;
+		}
     }
     
     /**
@@ -347,8 +429,12 @@ class Distribution
      */
     public function setMaxSr($max_sr): Distribution
     {
-        $this->max_sr = $max_sr;
-        
+		if($max_sr == 65535) {
+			$this->max_sr = null;
+		}
+		else {
+			$this->max_sr = $max_sr;
+		}
         return $this;
     }
     
@@ -357,7 +443,13 @@ class Distribution
      */
     public function getMinGr(): int
     {
-        return $this->min_gr;
+		if (is_null($this->min_gr)) {
+			return 65535;
+		}
+		else {
+			return $this->min_gr;
+		}
+
     }
     
     /**
@@ -366,8 +458,12 @@ class Distribution
      */
     public function setMinGr($min_gr): Distribution
     {
-        $this->min_gr = $min_gr;
-        
+		if($min_gr == 65535) {
+			$this->min_gr = null;
+		}
+		else {
+			$this->min_gr = $min_gr;
+		}
         return $this;
     }
     
@@ -376,7 +472,12 @@ class Distribution
      */
     public function getMaxGr(): int
     {
-        return $this->max_gr;
+		if (is_null($this->max_gr)) {
+			return 65535;
+		}
+		else {
+			return $this->max_gr;
+		}
     }
     
     /**
@@ -385,7 +486,12 @@ class Distribution
      */
     public function setMaxGr($max_gr): Distribution
     {
-        $this->max_gr = $max_gr;
+		if($max_gr == 65535) {
+			$this->max_gr = null;
+		}
+		else {
+			$this->max_gr = $max_gr;
+		}
         
         return $this;
     }
@@ -393,9 +499,15 @@ class Distribution
     /**
      * @return resource
      */
-    public function getData()
+    public function getData(): int
     {
-        return $this->data;
+		if (is_null($this->data)) {
+			return 0;
+		}
+		else {
+			return $this->data;
+		}
+		
     }
     
     /**
@@ -404,15 +516,7 @@ class Distribution
      */
     public function setData($data)
     {
-        if (!is_resource($data)) {
-            $handle = fopen('php://memory', 'br+');
-            fwrite($handle, hex2bin($data));
-            rewind($handle);
-            
-            $data = $handle;
-        }
         $this->data = $data;
-        
         return $this;
     }
 }
