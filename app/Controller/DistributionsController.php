@@ -76,16 +76,15 @@ class DistributionsController extends AbstractController
         $distribution->setMaxSr((int)$_POST['maxsr']);
         $distribution->setMinGr((int)$_POST['mingr']);
         $distribution->setMaxGr((int)$_POST['maxgr']);
-        
-        $itemString = sprintf('%04X', count($_POST['items']));
-        
+        //$itemString = sprintf('%04X', count($_POST['items']));
+		
+		/*
         foreach ($_POST['items'] as $item) {
             $itemString .= (new DistributionItem())->setType((int)$item['type'])->setAmount((int)$item['amount'])->setItemId($item['itemId']);
         }
-        $handle = fopen('php://memory', 'rb+');
-        fwrite($handle, hex2bin($itemString));
-        rewind($handle);
-        $distribution->setData($handle);
+		*/
+		
+        $distribution->setData($_POST['items'][0]['amount']);
         
         EM::getInstance()->flush();
     
