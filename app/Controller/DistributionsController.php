@@ -8,6 +8,7 @@ use Doctrine\ORM\OptimisticLockException;
 use MHFSaveManager\Database\EM;
 use MHFSaveManager\Model\Distribution;
 use MHFSaveManager\Model\DistributionItem;
+use MHFSaveManager\Model\DistributionData;
 use MHFSaveManager\Service\ItemsService;
 use MHFSaveManager\Service\ResponseService;
 use MHFSaveManager\Model\Character;
@@ -75,14 +76,27 @@ class DistributionsController extends AbstractController
         $distribution->setMinSr((int)$_POST['minsr']);
         $distribution->setMaxSr((int)$_POST['maxsr']);
         $distribution->setMinGr((int)$_POST['mingr']);
-        $distribution->setMaxGr((int)$_POST['maxgr']);
-        //$itemString = sprintf('%04X', count($_POST['items']));
+        $distribution->setMaxGr((int)$_POST['maxgr']);	
 		
-		/*
         foreach ($_POST['items'] as $item) {
-            $itemString .= (new DistributionItem())->setType((int)$item['type'])->setAmount((int)$item['amount'])->setItemId($item['itemId']);
+			$distribution_data = new DistributionData();
+				
+			if (isset($_POST['id']) && $_POST['id'] > 0) {
+				$distribution_data = EM::getInstance()->getRepository(self::$itemClass)->find($_POST['id']);
+			} 
+			else {
+				EM::getInstance()->persist($distribution_data);
+			}
+			
+			$distribution_data->setDistributionId($distribution->getId());
+			$distribution_data->setItemId((int)hexdec(substr($item['itemId'],2, 2) . substr($item['itemId'],0, 2)));
+			$distribution_data->setType((int)$item['type']);
+			$distribution_data->setQuantity((int)$item['amount']);			
+
+			EM::getInstance()->flush();
+			ResponseService::SendOk();
         }
-		*/
+		
 		
         $distribution->setData($_POST['items'][0]['amount']);
         
